@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-
+        APP_VERSION = "1"
     }
 
     stages {
@@ -29,19 +29,19 @@ pipeline {
                 echo 'Building'
             }
         }
+    }
 
-        post {
-            always {
-                echo 'Cleaning up...'
-            }
+    post {
+        always {
+            echo 'Cleaning up...'
+        }
 
-            success {
-                echo 'Pipeline finished successfully'
-            }
+        success {
+            echo 'Pipeline finished successfully'
+        }
 
-            failure {
-                echo 'Pipeline failed'
-            }
+        failure {
+            echo 'Pipeline failed'
         }
     }
 }
