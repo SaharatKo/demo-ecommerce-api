@@ -16,8 +16,8 @@ pipeline {
 
         stage('Restore') {
             steps {
-                sh 'dotnet restore ../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj'
-                sh 'dotnet test ../DemoEcommerceApi/DemoEcommerceApiLambda/test/DemoEcommerceApiLambda.Tests --configuration Release'
+                sh 'dotnet restore DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj'
+                sh 'dotnet test DemoEcommerceApi/DemoEcommerceApiLambda/test/DemoEcommerceApiLambda.Tests --configuration Release'
             }
         }
 
