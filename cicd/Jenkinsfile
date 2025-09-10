@@ -2,46 +2,68 @@ pipeline {
     agent any
 
     environment {
-        APP_VERSION = "1.0"
+        AWS_DEFAULT_REGION = 'ap-southeast-1'
+        PROJECT = 'demo-ecommerce-api'
+        ENV = 'dev'
+        BUILD_DIR = '../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/bin/Release/net8.0/publish'
+        ZIP_PATH = 'artifact/demo-ecommerce-api.zip'
     }
 
     stages {
         stage('Checkout') {
+            steps { checkout scm }
+        }
+
+        stage('Restore') {
             steps {
-                checkout scm
+                sh 'dotnet restore ../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj'
+                sh 'dotnet test ../DemoEcommerceApi/DemoEcommerceApiLambda/test/DemoEcommerceApiLambda.Tests --configuration Release'
             }
         }
 
-        stage('Build') {
+        stage('Build & Publish') {
             steps {
-                echo 'Building'
+                sh 'dotnet publish ../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj -c Release -o ${BUILD_DIR}'
             }
         }
 
-        stage('Test') {
+        stage('Package') {
             steps {
-                echo 'Testing'
+                sh 'mkdir -p artifact'
+                sh "cd ${BUILD_DIR} && zip -r ../../../../${ZIP_PATH} ."
+                archiveArtifacts artifacts: '${ZIP_PATH}', fingerprint: true
             }
         }
 
-        stage('Deploy') {
+        stage('Terraform') {
             steps {
-                echo 'Building'
+                dir('terraform') {
+                    withEnv(["TF_VAR_lambda_zip_path=${env.WORKSPACE}/${ZIP_PATH}",
+                            "TF_VAR_env=${ENV}",
+                            "TF_VAR_project=${PROJECT}"]) {
+                        sh 'terraform init -upgrade'
+                        sh 'terraform validate -upgrade'
+                        sh 'terraform plan -out=tfplan'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when { branch 'main' }
+            steps {
+                dir('terraform') {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
             }
         }
     }
 
     post {
-        always {
-            echo 'Cleaning up...'
-        }
-
         success {
-            echo 'Pipeline finished successfully'
-        }
-
-        failure {
-            echo 'Pipeline failed'
+            dir('terraform') {
+                sh 'terraform output -raw api_base_url || true'
+            }
         }
     }
 }

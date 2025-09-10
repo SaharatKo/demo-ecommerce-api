@@ -53,4 +53,10 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
+# Visual Studio user-specific files
 .vs/
+*.user
+*.suo
+
+# Sonarqube
+.sonarqube/
