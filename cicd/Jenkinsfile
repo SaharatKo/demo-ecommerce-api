@@ -23,7 +23,7 @@ pipeline {
 
         stage('Build & Publish') {
             steps {
-                sh 'dotnet publish ../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj -c Release -o ${BUILD_DIR}'
+                sh 'dotnet publish DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj -c Release -o ${BUILD_DIR}'
             }
         }
 
