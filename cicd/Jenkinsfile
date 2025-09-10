@@ -15,12 +15,6 @@ pipeline {
         }
 
         stage('Restore') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/dotnet/sdk:8.0'
-                    args '-u root:root'
-                }
-            }
             steps {
                 sh 'dotnet restore ../DemoEcommerceApi/DemoEcommerceApiLambda/src/DemoEcommerceApiLambda/DemoEcommerceApiLambda.csproj'
                 sh 'dotnet test ../DemoEcommerceApi/DemoEcommerceApiLambda/test/DemoEcommerceApiLambda.Tests --configuration Release'
