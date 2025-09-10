@@ -39,6 +39,12 @@ pipeline {
         }
 
         stage('Package') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/dotnet/sdk:8.0'
+                    args '-u root:root'
+                }
+            }
             steps {
                 sh 'mkdir -p artifact'
                 sh "cd ${BUILD_DIR} && zip -r ../../../../${ZIP_PATH} ."
@@ -53,7 +59,7 @@ pipeline {
                             "TF_VAR_env=${ENV}",
                             "TF_VAR_project=${PROJECT}"]) {
                         sh 'terraform init -upgrade'
-                        sh 'terraform validate -upgrade'
+                        sh 'terraform validate'
                         sh 'terraform plan -out=tfplan'
                     }
                 }
